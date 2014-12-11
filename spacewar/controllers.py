@@ -19,8 +19,11 @@ class Controller(object):
     def rotate_right(self):
         self.rotation -= 1
 
+    def accelerate(self):
+        self.ship.accelerating = not self.ship.accelerating
+
     def update(self):
-        self.ship.angle += (self.rotation * ROTATION_VELOCITY)
+        self.ship.orientation += (self.rotation * ROTATION_VELOCITY)
 
     def keyup(self, key):
         pass
@@ -55,13 +58,15 @@ class Player1Controller(PlayerController):
     def get_keys(self):
         return {
             pygame.K_a: self.rotate_left,
-            pygame.K_d: self.rotate_right
+            pygame.K_d: self.rotate_right,
+            pygame.K_s: self.accelerate
         }
 
     def get_keyups(self):
         return {
             pygame.K_d: self.rotate_left,
-            pygame.K_a: self.rotate_right
+            pygame.K_a: self.rotate_right,
+            pygame.K_s: self.accelerate
         }
 
 class Player2Controller(PlayerController):
