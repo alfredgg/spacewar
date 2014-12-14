@@ -4,13 +4,17 @@
 from game import PyGame
 from stages import Menu
 
+UPDATE_RATIO = 75
+
 class SpaceWarGame(PyGame):
     def __init__(self):
         PyGame.__init__(self)
-        self.current_stage = Menu(self)
+        self.current_stage = None
 
     def setup(self):
         self.set_title("SPACEWAR")
+        self.update_ratio = UPDATE_RATIO
+        self.current_stage = Menu(self)
 
     def draw(self):
         self.current_stage.draw(self.screen)

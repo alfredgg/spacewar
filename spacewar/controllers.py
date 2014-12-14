@@ -3,12 +3,14 @@
 
 import pygame
 
-ROTATION_VELOCITY = 25
+# IT MUST BE 360 % ROTATION_VELOCITY = 0
+ROTATION_VELOCITY = 15
 
 class Controller(object):
     def __init__(self):
         self.ship = None
         self.rotation = 0
+        self.energy_change = 0
 
     def keypressed(self, key):
         pass
@@ -19,14 +21,34 @@ class Controller(object):
     def rotate_right(self):
         self.rotation -= 1
 
+    def increase_energy(self):
+        self.energy_change += 1
+
+    def decrease_energy(self):
+        self.energy_change -= 1
+
     def accelerate(self):
         self.ship.accelerating = not self.ship.accelerating
 
+    def invisibility(self):
+        self.ship.visible = not self.ship.visible
+
     def update(self):
         self.ship.orientation += (self.rotation * ROTATION_VELOCITY)
+        self.ship.orientation %= 360
+        self.ship.change_energy(self.energy_change)
 
     def keyup(self, key):
         pass
+
+    def fire_missile(self):
+        self.ship.fire_missile()
+
+    def fire_laser(self):
+        self.ship.fire_laser()
+
+    def teleport(self):
+        self.ship.teleport()
 
 
 class PlayerController(Controller):
@@ -59,14 +81,23 @@ class Player1Controller(PlayerController):
         return {
             pygame.K_a: self.rotate_left,
             pygame.K_d: self.rotate_right,
-            pygame.K_s: self.accelerate
+            pygame.K_s: self.accelerate,
+            pygame.K_w: self.invisibility,
+            pygame.K_q: self.fire_missile,
+            pygame.K_e: self.fire_laser,
+            pygame.K_x: self.teleport,
+            pygame.K_z: self.increase_energy,
+            pygame.K_c: self.decrease_energy
         }
 
     def get_keyups(self):
         return {
             pygame.K_d: self.rotate_left,
             pygame.K_a: self.rotate_right,
-            pygame.K_s: self.accelerate
+            pygame.K_s: self.accelerate,
+            pygame.K_w: self.invisibility,
+            pygame.K_z: self.decrease_energy,
+            pygame.K_c: self.increase_energy
         }
 
 class Player2Controller(PlayerController):
@@ -76,13 +107,17 @@ class Player2Controller(PlayerController):
     def get_keys(self):
         return {
             pygame.K_KP6: self.rotate_left,
-            pygame.K_KP4: self.rotate_right
+            pygame.K_KP4: self.rotate_right,
+            pygame.K_KP1: self.increase_energy,
+            pygame.K_KP3: self.decrease_energy
         }
 
     def get_keyups(self):
         return {
             pygame.K_KP4: self.rotate_left,
-            pygame.K_KP6: self.rotate_right
+            pygame.K_KP6: self.rotate_right,
+            pygame.K_KP1: self.decrease_energy,
+            pygame.K_KP3: self.increase_energy
         }
 
 class RobotController(Controller):
