@@ -9,7 +9,6 @@ And this is the style of this version:
 
 ```
 $ sudo apt-get install python-pygame
-$ 
 ```
 
 ## Keys

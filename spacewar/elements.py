@@ -190,7 +190,7 @@ class Bar(object):
         self.blink_visible = True
         self.salarm = sound.sound(SOUND_ALARM, play=False)
         self.in_alarm = False
-        if (left):
+        if left:
             self.s_position = (BAR_X_1 + BAR_TEXT_MARGIN_X, BAR_Y_S + BAR_TEXT_MARGIN_Y)
             self.e_position = (BAR_X_1 + BAR_TEXT_MARGIN_X, BAR_Y_E + BAR_TEXT_MARGIN_Y)
         else:
