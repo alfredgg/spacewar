@@ -163,9 +163,11 @@ class Game(Stage):
         y_pos2 = (self.game.screen_size[1] / 5) * 4
         self.controller1.ship = self.spaceship1 = elements.SpaceShip1((x_pos1, y_pos1),
                                                                       angle=180,
-                                                                      add_new_element_function=self.add_new_element)
+                                                                      add_new_element_function=self.add_new_element,
+                                                                      remove_element_function=self.remove_element)
         self.controller2.ship = self.spaceship2 = elements.SpaceShip2((x_pos2, y_pos2),
-                                                                      add_new_element_function=self.add_new_element)
+                                                                      add_new_element_function=self.add_new_element,
+                                                                      remove_element_function=self.remove_element)
         self.planet = planet
         self.gravity = gravity
         self.debug = debug
@@ -193,10 +195,10 @@ class Game(Stage):
         screen.blit(self.image, (0, 0))
         for ge in self.game_elements:
             ge.draw(self.game.screen)
+            if self.debug:
+                ge.draw_debug(self.game.screen)
         self.bar1.draw(self.game.screen)
         self.bar2.draw(self.game.screen)
-        if self.debug:
-            self.world.draw(self.game.screen, self.game_elements)
 
     def keypressed(self, key):
         if key == pygame.K_ESCAPE:
@@ -217,7 +219,12 @@ class Game(Stage):
         self.bar1.update()
         self.bar2.update()
         self.world.update(self.game_elements)
+        for ge in self.game_elements:
+            ge.update()
 
     def add_new_element(self, ge):
         self.world.set_body(ge)
         self.game_elements.append(ge)
+
+    def remove_element(self, ge):
+        self.game_elements.remove(ge)

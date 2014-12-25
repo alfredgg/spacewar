@@ -8,7 +8,7 @@ And this is the style of this version:
 ## Install
 
 ```
-$ apt-get install 
+$ sudo apt-get install python-pygame
 $ 
 ```
 

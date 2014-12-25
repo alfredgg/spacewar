@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pygame
+
 AVAILABLE_SOUNDS = dict()
 
-def register_sound(key, file):
-    pass
+def register_sound(key, path):
+    global AVAILABLE_SOUNDS
+    AVAILABLE_SOUNDS[key] = pygame.mixer.Sound(path)
 
-def play(key, bucle=False):
+def sound(key, play=True, bucle=False):
     value = AVAILABLE_SOUNDS[key]
-    return Bucle(value) if bucle else Effect(value)
-
-class Sound(object):
-    pass
-
-class Effect(Sound):
-    pass
-
-class Bucle(Sound):
-    pass
+    loop = -1 if bucle else 0
+    if play:
+        value.play(loops=loop)
+    return value

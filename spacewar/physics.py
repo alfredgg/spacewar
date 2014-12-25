@@ -3,8 +3,14 @@
 
 import pygame
 import pymunk as pm
+import math
 
-COLOR_SIZE = (255, 0, 0)
+
+def coord(point, dist, ang):
+    ang = math.radians(ang)
+    x = dist * math.cos(ang)
+    y = dist * math.sin(ang)
+    return point[0] - x, point[1] + y
 
 class SpaceWarWorld(object):
     def __init__(self):
@@ -18,8 +24,3 @@ class SpaceWarWorld(object):
 
     def set_body(self, element):
         element.body = pm.Body()
-
-    def draw(self, screen, game_elements):
-        for ge in game_elements:
-            pygame.draw.circle(screen, COLOR_SIZE, ge.position, ge.radio, 1)
-            pygame.draw.line(screen, COLOR_SIZE, ge.position, (ge.position[0]+ge.radio, ge.position[1]), 1)
