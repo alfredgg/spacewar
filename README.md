@@ -11,6 +11,12 @@ And this is the style of this version:
 $ sudo apt-get install python-pygame
 ```
 
+## Execution
+
+```
+$ python spacewar.py
+```
+
 ## Keys
 
 ### Player 1
