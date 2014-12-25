@@ -32,7 +32,7 @@ LASER_LENGTH = 150
 LASER_WIDTH = 2
 LASER_OFFSET = 3
 LASER_LIFE = 2
-LASER_ENERGY = 3
+LASER_ENERGY = 2.5
 
 COLOR_DEBUG = (255, 0, 0)
 
@@ -131,6 +131,8 @@ class Ship(GameObject):
 
     def update(self):
         self.acceleration = 1 if self.accelerating else 0
+        if not self.visible:
+            self.energy -= 0.5
 
     def fire_missile(self):
         pass

@@ -14,25 +14,25 @@ $ sudo apt-get install python-pygame
 ## Keys
 
 ### Player 1
-  + Q
-  + W
-  + E
-  + A
-  + S
-  + D
-  + Z
-  + X
-  + C
+  + Q, missile
+  + W, invisibility
+  + E, laser
+  + A, turn left
+  + S, acceleration
+  + D, turn right
+  + Z, increase energy bar
+  + X, teleport
+  + C, increase life bar
   
   
 ### Player 2
 On the numpad:
-  * 7
-  * 8
-  * 9
-  * 4
-  * 5
-  * 6
-  * 1
-  * 2
-  * 3
+  * 7, missile
+  * 8, invisibility
+  * 9, laser
+  * 4, turn left
+  * 5, acceleration
+  * 6, turn right
+  * 1, increase energy bar
+  * 2, teleport
+  * 3, increase life bar
