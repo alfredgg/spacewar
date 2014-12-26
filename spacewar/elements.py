@@ -9,6 +9,7 @@ SPACESHIP1_FILE = 'pictures/ship1.png'
 SPACESHIP2_FILE = 'pictures/ship2.png'
 PLANET_FILE = 'pictures/planet.png'
 TITLE_FILE = 'pictures/title.png'
+MISSILE_FILE = 'pictures/misil.png'
 
 FONT_BARS_SIZE = 25
 BAR_X_1 = 42
@@ -26,7 +27,11 @@ STAR_SIZE = 2
 ACCELERATION = 1
 SPACESHIP_SIZE = 25
 PLANET_SIZE = 100
-MISIL_SIZE = 10
+
+MISSILE_SIZE = 20
+MISSILE_ACCELERATION = 10
+MISSILE_SPRITES = None
+MISSILE_ENERGY = 1
 
 LASER_LENGTH = 150
 LASER_WIDTH = 2
@@ -38,7 +43,6 @@ COLOR_DEBUG = (255, 0, 0)
 
 SPACESHIP1_SPRITES = None
 SPACESHIP2_SPRITES = None
-MISSILE_SPRITES = None
 SPACESHIP_ENERGY = 100
 SPACESHIP_LIFE = 100
 SPACESHIP_ENERGY_CHANGE = 3
@@ -49,6 +53,7 @@ SOUND_IMPACT = 'impact'
 SOUND_LASER = 'laser'
 SOUND_MISSILE = 'missile'
 SOUND_TELEPORT = 'teleport'
+
 
 def background(screensize, add_bars=False):
     from random import randint
@@ -61,13 +66,38 @@ def background(screensize, add_bars=False):
         pygame.draw.rect(bckgnd, (255, 255, 255), pygame.Rect(x, y, STAR_SIZE, STAR_SIZE))
     if add_bars:
         myfont = pygame.font.SysFont("monospace", FONT_BARS_SIZE, bold=True)
-        label = myfont.render("S", 1, (255,255,255))
+        label = myfont.render("S", 1, (255, 255, 255))
         bckgnd.blit(label, (BAR_X_1, BAR_Y_S))
         bckgnd.blit(label, (BAR_X_2, BAR_Y_S))
-        label = myfont.render("E", 1, (255,255,255))
+        label = myfont.render("E", 1, (255, 255, 255))
         bckgnd.blit(label, (BAR_X_1, BAR_Y_E))
         bckgnd.blit(label, (BAR_X_2, BAR_Y_E))
     return bckgnd
+
+
+# From: http://www.pygame.org/wiki/RotateCenter?parent=CookBook
+def rot_center(image, angle):
+    """rotate an image while keeping its center and size"""
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
+
+
+def load_sprites(img_path, size=None):
+    from controllers import ROTATION_VELOCITY
+    image = pygame.image.load(img_path)
+    if size:
+        image = pygame.transform.scale(image, (size, size))
+    return [rot_center(image, v * ROTATION_VELOCITY) for v in xrange(0, 360 / ROTATION_VELOCITY)]
+
+
+def load_missile_sprites():
+    global MISSILE_SPRITES
+    MISSILE_SPRITES = load_sprites(MISSILE_FILE, MISSILE_SIZE)
+
 
 class GameObject(object):
     def __init__(self, ini_position=(0,0), angle=0, radio=0, mass=1, image_path=None, image_size=100):
@@ -104,14 +134,9 @@ class GameObject(object):
     def get_point_to(self, offset=0):
         return coord(self.get_center(), self.radio + offset, self.orientation)
 
-    def rot_center(self, image, angle):
-        """rotate an image while keeping its center and size"""
-        orig_rect = image.get_rect()
-        rot_image = pygame.transform.rotate(image, angle)
-        rot_rect = orig_rect.copy()
-        rot_rect.center = rot_image.get_rect().center
-        rot_image = rot_image.subsurface(rot_rect).copy()
-        return rot_image
+    def end(self):
+        pass
+
 
 class Ship(GameObject):
     def __init__(self, ini_position, angle=0, add_new_element_function=None, remove_element_function=None):
@@ -123,27 +148,34 @@ class Ship(GameObject):
         self.energy = SPACESHIP_ENERGY
         self.life = SPACESHIP_LIFE
 
-    def load_sprites(self, img_path, size):
-        from controllers import ROTATION_VELOCITY
-        image = pygame.image.load(img_path)
-        image = pygame.transform.scale(image, (size, size))
-        return [self.rot_center(image, v * ROTATION_VELOCITY) for v in xrange(0, 360 / ROTATION_VELOCITY)]
-
     def update(self):
         self.acceleration = 1 if self.accelerating else 0
         if not self.visible:
             self.energy -= 0.5
 
+    def substract_energy(self, quantity):
+        if self.energy - quantity < 0:
+            return False
+        self.energy -= quantity
+        return True
+
     def fire_missile(self):
-        pass
+        if not self.substract_energy(MISSILE_ENERGY):
+            return
+        missile = Missile(self.get_point_to(),
+                          self.orientation,
+                          self.acceleration)
+        self.add_new_element(missile)
+        sound.sound(SOUND_MISSILE).play()
 
     def fire_laser(self):
-        if self.energy - LASER_ENERGY < 0:
+        if not self.substract_energy(LASER_ENERGY):
             return
-        self.energy -= LASER_ENERGY
-        self.add_new_element(Laser(self))
-        s = sound.sound(SOUND_LASER)
-        s.play()
+        laser = Laser(self.get_point_to(offset=LASER_OFFSET),
+                      self.orientation,
+                      self.remove_element)
+        self.add_new_element(laser)
+        sound.sound(SOUND_LASER).play()
 
     def teleport(self):
         pass
@@ -154,6 +186,7 @@ class Ship(GameObject):
             self.energy += value
             self.life += (value*-1)
 
+
 class SpaceShip1(Ship):
     def __init__(self, ini_position, angle=0, add_new_element_function=None, remove_element_function=None):
         Ship.__init__(self, ini_position, angle,
@@ -162,8 +195,9 @@ class SpaceShip1(Ship):
 
         global SPACESHIP1_SPRITES
         if SPACESHIP1_SPRITES is None:
-            SPACESHIP1_SPRITES = self.load_sprites(SPACESHIP1_FILE, SPACESHIP_SIZE)
+            SPACESHIP1_SPRITES = load_sprites(SPACESHIP1_FILE, SPACESHIP_SIZE)
         self.images = SPACESHIP1_SPRITES
+
 
 class SpaceShip2(Ship):
     def __init__(self, ini_position, angle=0, add_new_element_function=None, remove_element_function=None):
@@ -172,21 +206,27 @@ class SpaceShip2(Ship):
 
         global SPACESHIP2_SPRITES
         if SPACESHIP2_SPRITES is None:
-            SPACESHIP2_SPRITES = self.load_sprites(SPACESHIP2_FILE, SPACESHIP_SIZE)
+            SPACESHIP2_SPRITES = load_sprites(SPACESHIP2_FILE, SPACESHIP_SIZE)
         self.images = SPACESHIP2_SPRITES
+
 
 class Planet(GameObject):
     def __init__(self, ini_position):
         GameObject.__init__(self, ini_position, 0, 30, mass=300, image_path=PLANET_FILE, image_size=PLANET_SIZE)
 
-class Missile(GameObject):
-    def __init__(self, position, rotation):
-        GameObject.__init__(self, position, rotation)
 
-class Bar(object):
+class Missile(GameObject):
+    def __init__(self, position, orientation, ini_acceleration):
+        GameObject.__init__(self, (int(position[0]), int(position[1])), orientation, radio=MISSILE_SIZE/2)
+        self.acceleration = ini_acceleration + MISSILE_ACCELERATION
+        self.images = MISSILE_SPRITES
+        self.visible = True
+
+class Bar(GameObject):
     def __init__(self, spaceship, left=True):
+        GameObject.__init__(self)
         self.ship = spaceship
-        self.position = (0,0)
+        self.position = (0, 0)
         self.left = left
         self.blink_time = 0
         self.blink_visible = True
@@ -228,13 +268,20 @@ class Bar(object):
             self.salarm.stop()
             self.in_alarm = False
 
+    def end(self):
+        self.salarm.stop()
+
+    def draw_debug(self, screen):
+        pass
+
+
 class Laser(GameObject):
-    def __init__(self, ship):
+    def __init__(self, position, orientation, remove_element_function):
         GameObject.__init__(self)
         self.life = LASER_LIFE
-        self.remove_element = ship.remove_element
-        self.orientation = ship.orientation
-        self.pos1 = ship.get_point_to(offset=LASER_OFFSET)
+        self.remove_element = remove_element_function
+        self.orientation = orientation
+        self.pos1 = position
         self.pos2 = coord(self.pos1, LASER_LENGTH, self.orientation)
 
     def draw(self, screen):
@@ -247,3 +294,15 @@ class Laser(GameObject):
 
     def draw_debug(self, screen):
         pass
+
+
+class TeleportEffect(GameObject):
+    pass
+
+
+class ImpactEffect(GameObject):
+    pass
+
+
+class ExplosionEffect(GameObject):
+    pass

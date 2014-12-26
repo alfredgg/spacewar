@@ -16,10 +16,10 @@ class Controller(object):
         pass
 
     def rotate_left(self):
-        self.rotation += 1
+        self.rotation -= 1
 
     def rotate_right(self):
-        self.rotation -= 1
+        self.rotation += 1
 
     def increase_energy(self):
         self.energy_change += 1
@@ -79,12 +79,12 @@ class Player1Controller(PlayerController):
 
     def get_keys(self):
         return {
-            pygame.K_a: self.rotate_left,
-            pygame.K_d: self.rotate_right,
+            pygame.K_a: self.rotate_right,
+            pygame.K_d: self.rotate_left,
             pygame.K_s: self.accelerate,
             pygame.K_w: self.invisibility,
-            pygame.K_q: self.fire_missile,
-            pygame.K_e: self.fire_laser,
+            pygame.K_e: self.fire_missile,
+            pygame.K_q: self.fire_laser,
             pygame.K_x: self.teleport,
             pygame.K_z: self.increase_energy,
             pygame.K_c: self.decrease_energy
@@ -92,8 +92,8 @@ class Player1Controller(PlayerController):
 
     def get_keyups(self):
         return {
-            pygame.K_d: self.rotate_left,
-            pygame.K_a: self.rotate_right,
+            pygame.K_d: self.rotate_right,
+            pygame.K_a: self.rotate_left,
             pygame.K_s: self.accelerate,
             pygame.K_w: self.invisibility,
             pygame.K_z: self.decrease_energy,
@@ -109,7 +109,10 @@ class Player2Controller(PlayerController):
             pygame.K_KP6: self.rotate_left,
             pygame.K_KP4: self.rotate_right,
             pygame.K_KP1: self.increase_energy,
-            pygame.K_KP3: self.decrease_energy
+            pygame.K_KP3: self.decrease_energy,
+            pygame.K_KP8: self.invisibility,
+            pygame.K_KP9: self.fire_missile,
+            pygame.K_KP7: self.fire_laser,
         }
 
     def get_keyups(self):
@@ -117,7 +120,8 @@ class Player2Controller(PlayerController):
             pygame.K_KP4: self.rotate_left,
             pygame.K_KP6: self.rotate_right,
             pygame.K_KP1: self.decrease_energy,
-            pygame.K_KP3: self.increase_energy
+            pygame.K_KP3: self.increase_energy,
+            pygame.K_KP8: self.invisibility
         }
 
 class RobotController(Controller):

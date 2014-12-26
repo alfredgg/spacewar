@@ -57,6 +57,8 @@ class Menu(Stage):
         self.image = self.create_image()
         if not SOUNDS_LOADED:
             self.load_sounds()
+        if not elements.MISSILE_SPRITES:
+            elements.load_missile_sprites()
 
     def create_image(self):
         image = elements.background(self.game.screen_size)
@@ -184,6 +186,8 @@ class Game(Stage):
                  (self.game.screen_size[1]/2) - (elements.PLANET_SIZE/2))))
         self.bar1 = elements.Bar(self.spaceship1, True)
         self.bar2 = elements.Bar(self.spaceship2, False)
+        self.add_new_element(self.bar1)
+        self.add_new_element(self.bar2)
 
     def next_stage(self):
         self.game.change_stage(Menu(self.game, points1=self.points1, points2=self.points2,
@@ -200,8 +204,13 @@ class Game(Stage):
         self.bar1.draw(self.game.screen)
         self.bar2.draw(self.game.screen)
 
+    def end_game(self):
+        for ge in self.game_elements:
+            ge.end()
+
     def keypressed(self, key):
         if key == pygame.K_ESCAPE:
+            self.end_game()
             self.next_stage()
             return
         elif key == pygame.K_F12:
@@ -216,8 +225,6 @@ class Game(Stage):
     def update(self):
         self.controller1.update()
         self.controller2.update()
-        self.bar1.update()
-        self.bar2.update()
         self.world.update(self.game_elements)
         for ge in self.game_elements:
             ge.update()

@@ -20,9 +20,9 @@ $ python spacewar.py
 ## Keys
 
 ### Player 1
-  + Q, missile
+  + Q, laser
   + W, invisibility
-  + E, laser
+  + E, missile
   + A, turn left
   + S, acceleration
   + D, turn right
@@ -33,9 +33,9 @@ $ python spacewar.py
   
 ### Player 2
 On the numpad:
-  * 7, missile
+  * 7, laser
   * 8, invisibility
-  * 9, laser
+  * 9, missile
   * 4, turn left
   * 5, acceleration
   * 6, turn right

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pygame
 import pymunk as pm
 import math
 
@@ -11,6 +10,7 @@ def coord(point, dist, ang):
     x = dist * math.cos(ang)
     y = dist * math.sin(ang)
     return point[0] - x, point[1] + y
+
 
 class SpaceWarWorld(object):
     def __init__(self):
